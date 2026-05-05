@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
 #from data_builder import get_combined_dataloaders as get_dataloaders
-from data_builder2 import get_dataloaders
+from data_builder import get_dataloaders
 
 
 # ignore this line, its for selecting which GPU to use 

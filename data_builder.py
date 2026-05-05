@@ -1,52 +1,46 @@
-from torchvision.datasets import ImageFolder, MNIST
+
+from torchvision.datasets import ImageFolder
 import torchvision.transforms as transforms
-from torch.utils.data import DataLoader, ConcatDataset
+from torch.utils.data import DataLoader
 from PIL import ImageOps
 
-# A custom transform to invert the HASY images (black ink to white ink)
+# A custom transform to invert colors (black ink to white ink)
 class InvertColor(object):
     def __call__(self, img):
         return ImageOps.invert(img)
 
-def get_combined_dataloaders(batch_size=64):
+def get_dataloaders(batch_size=64):
+    print("Loading perfectly balanced dataset...")
     
-    # 1. Transform for MNIST (just sizing and tensor)
-    mnist_transform = transforms.Compose([
-        transforms.Resize((28, 28)),
-        transforms.ToTensor(),
-        transforms.Normalize((0.5,), (0.5,))
-    ])
-    
-    # 2. Transform for Symbols (Invert colors, size, tensor)
-    symbol_transform = transforms.Compose([
-        transforms.Grayscale(), # Ensure it's 1-channel
-        InvertColor(),          # Make it white ink on black background
+    # 1. Standardize everything to look like MNIST (28x28, white ink on black background)
+    transform = transforms.Compose([
+        transforms.Grayscale(), 
+        InvertColor(),          
         transforms.Resize((28, 28)),
         transforms.ToTensor(),
         transforms.Normalize((0.5,), (0.5,))
     ])
 
-    # 3. Load the Datasets
-    mnist_train = MNIST(root='./data', train=True, transform=mnist_transform, download=True)
-    
-    # PyTorch's ImageFolder automatically assigns labels based on the folder names!
-    # 1. Define the label shift (adds 10 to every math symbol label)
-    target_transform = transforms.Lambda(lambda y: y + 10)
-
-    # 2. Add target_transform to your ImageFolder
-    symbol_train = ImageFolder(
-        root='./math_symbol_new', 
-        transform=symbol_transform,
-        target_transform=target_transform
+    # 2. Load the perfectly balanced dataset from a single folder
+    # IMPORTANT: Make sure all 14 folders (0-9, +, -, div, multiply) are inside a folder named 'symbols_dataset'
+    dataset = ImageFolder(
+        root='./symbols_dataset', 
+        transform=transform
     )
 
-    #3. Combine and Load
+    # Print how PyTorch sorted the folders so we can update the dictionary later
+    print("\n--- NEW CLASS MAPPING ---")
+    for class_name, class_index in dataset.class_to_idx.items():
+        print(f"Class {class_index}: '{class_name}'")
+    print("-------------------------\n")
 
-    #here the 15x line is for nn to overcome its natural bias towards 60000 mnist digits vs ~4000 symbols
-    #combined_dataset = ConcatDataset([mnist_train, symbol_train])
-    combined_dataset = ConcatDataset([mnist_train] + [symbol_train] * 15)
-
-
-    combined_loader = DataLoader(dataset=combined_dataset, batch_size=batch_size, shuffle=True)
+    # 3. Create the DataLoader
+    # Because the data is naturally balanced, we can go back to simple random shuffling!
+    loader = DataLoader(
+        dataset=dataset, 
+        batch_size=batch_size, 
+        shuffle=True 
+    )
     
-    return combined_loader
+    print(f"Successfully loaded {len(dataset)} total images.")
+    return loader

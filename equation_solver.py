@@ -3,7 +3,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torchvision.transforms as transforms
 import cv2
-import numpy as np
 import matplotlib.pyplot as plt
 
 # 1. Load Your 14-Class Brain
@@ -26,7 +25,7 @@ class MathCNN(nn.Module):
 
 device = torch.device("mps" if torch.backends.mps.is_available() else "cuda" if torch.cuda.is_available() else "cpu")
 model = MathCNN().to(device)
-model.load_state_dict(torch.load('mnist_cnn.pth', weights_only=True)) 
+model.load_state_dict(torch.load('mnist_cnn.pth', map_location=device, weights_only=True)) 
 model.eval()
 
 
