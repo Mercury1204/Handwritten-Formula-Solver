@@ -37,7 +37,7 @@ This project implements a multimodal machine learning pipeline designed to parse
 This project uses a hybrid dataset approach.
 
 1.  Create a folder named `symbols_dataset` in your project root.
-2.  Download the **Handwritten Math Symbols Dataset** from Kaggle.
+2.  Download the [**Handwritten Math Symbols Dataset**](https://www.kaggle.com/datasets/c0wie08/basic-handwritten-math-symbols-dataset) from Kaggle.
 3.  Extract the 0-9 and `+`, `-`, `*` (dot/multiply), and `/` (div) folders into your `symbols_dataset` directory. Ensure the symbols are formatted as 28x28 grayscale PNGs (black ink on white paper).
 
 ## Usage
