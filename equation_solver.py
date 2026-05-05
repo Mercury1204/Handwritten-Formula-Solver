@@ -5,7 +5,6 @@ import torchvision.transforms as transforms
 import cv2
 import matplotlib.pyplot as plt
 
-# 1. Load Your 14-Class Brain
 class MathCNN(nn.Module):
     def __init__(self):
         super(MathCNN, self).__init__()
@@ -25,19 +24,18 @@ class MathCNN(nn.Module):
 
 device = torch.device("mps" if torch.backends.mps.is_available() else "cuda" if torch.cuda.is_available() else "cpu")
 model = MathCNN().to(device)
-model.load_state_dict(torch.load('mnist_cnn.pth', map_location=device, weights_only=True)) 
+model.load_state_dict(torch.load('model_cnn.pth', map_location=device, weights_only=True)) 
 model.eval()
 
 
 class_mapping = {
     0: '0', 1: '1', 2: '2', 3: '3', 4: '4', 
     5: '5', 6: '6', 7: '7', 8: '8', 9: '9',
-    10: '*',        # 'dot'
-    11: '-',        # 'minus'
-    12: '+',        # 'plus'
-    13: '/'         # 'slash'
+    10: '*',
+    11: '-',
+    12: '+',
+    13: '/'
 }
-
 
 # Aspect Ratio Preserving Resize
 def pad_and_resize(img_crop, target_size=28, ink_size=20):
@@ -56,7 +54,7 @@ def pad_and_resize(img_crop, target_size=28, ink_size=20):
                                     cv2.BORDER_CONSTANT, value=[0, 0, 0])
     return padded_img
 
-# 2. The Vision & Parsing Pipeline
+# The Vision & Parsing Pipeline
 def solve_equation(image_path):
     img = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
     if img is None:
@@ -79,8 +77,7 @@ def solve_equation(image_path):
 
     # loop for each detected character box
     for x, y, w, h in rects:
-        padding = 5
-        crop = thresh[max(0, y-padding):y+h+padding, max(0, x-padding):x+w+padding]
+        crop = thresh[y:y+h, x:x+w]
         
         crop_resized = pad_and_resize(crop)
 
@@ -100,11 +97,10 @@ def solve_equation(image_path):
         equation_string += char
         processed_boxes.append((x, y, w, h, char))
 
-    # 3. Execution & Visualization
+    # Execution & Visualization
     print(f"\nExtracted Equation: {equation_string}")
     
     try:
-        # Evaluate the string directly!
         answer = eval(equation_string)
         print(f"Solved Answer: {answer}")
     except Exception as e:
@@ -121,6 +117,14 @@ def solve_equation(image_path):
     plt.axis('off')
     plt.show()
 
-# --- RUN IT ---
 
 solve_equation('equation1.png')
+print("\n---\n")
+solve_equation('equation2.png')
+print("\n---\n")
+solve_equation('equation3.png') 
+print("\n---\n")
+solve_equation('equation4.png')
+print("\n---\n")   
+solve_equation('equation5.png')
+print("\n---\n")   

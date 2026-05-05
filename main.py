@@ -2,13 +2,12 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
-#from data_builder import get_combined_dataloaders as get_dataloaders
 from data_builder import get_dataloaders
 
 
-# ignore this line, its for selecting which GPU to use 
-# it automatically uses Apple Silicon (MPS), Nvidia GPU (CUDA)
-# or defaults to CPU if neither available
+# this line for selecting which GPU to use 
+# (Apple Silicon (MPS), Nvidia GPU (CUDA)
+# or defaults to CPU if neither available)
 device = torch.device("mps" if torch.backends.mps.is_available() else "cuda" if torch.cuda.is_available() else "cpu")
 print(f"Using device: {device}")
 
@@ -26,7 +25,6 @@ class SimpleCNN(nn.Module):
         self.conv2 = nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3, padding=1)
         self.fc1 = nn.Linear(in_features=64 * 7 * 7, out_features=128)
         
-        # isko phir dekhna ek baar 
         self.fc2 = nn.Linear(in_features=128, out_features=14) 
 
     def forward(self, x):
@@ -37,21 +35,20 @@ class SimpleCNN(nn.Module):
         x = self.fc2(x) 
         return x
 
-# Initializing the model and sending it to gpu/cpu (see device variable upar)
+# Initializing the model and sending it to gpu/cpu 
 model = SimpleCNN().to(device)
 print(model)
 
 #now we train the loop
 
-# 1. Define Loss Function and Optimizer
+# Defining Loss Function and Optimizer
 criterion = nn.CrossEntropyLoss()
-# Adam is a widely used optimizer that adapts the learning rate dynamically
+# Adam --> widely used optimizer 
 optimizer = optim.Adam(model.parameters(), lr=0.001)
-
 # wtv gemini says bro^^
 
-# 2. The Training Loop
-epochs = 5 # Number of times to loop through the entire dataset
+# The Training Loop
+epochs = 5
 
 # see NN theory for more understanding of this loop
 
@@ -61,14 +58,14 @@ for epoch in range(epochs):
     
     # Iterating through the batches of images and labels
     for i, (images, labels) in enumerate(train_loader):
-        # Move data to the same device as the model (MPS in our case)
+        # Move data to the same device as the model
         images = images.to(device)
         labels = labels.to(device)
         
         # Step 1: Zero the parameter gradients
         # PyTorch accumulates gradients, so we must clear them every batch
         optimizer.zero_grad()
-         # idk what this^^ mean, ask chatgpt
+         # idk what this^^ mean, ask gemini
         
         # Step 2: Forward pass (make predictions)
         outputs = model(images)
@@ -82,7 +79,7 @@ for epoch in range(epochs):
         # Step 5: Optimize (update the weights)
         optimizer.step()
         
-        # Keeps track of the loss for monitoring
+        # Keeps track of the loss
         running_loss += loss.item()
         
         # prints an update every 100 batches
@@ -93,7 +90,7 @@ for epoch in range(epochs):
 print("Training complete!")
 
 
-# 4. Saving the Model
-torch.save(model.state_dict(), 'mnist_cnn.pth') 
-print("Model weights saved to 'mnist_cnn.pth'")
+# Saving the Model
+torch.save(model.state_dict(), 'model_cnn.pth') 
+print("Model weights saved to 'model_cnn.pth'")
 
