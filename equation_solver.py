@@ -29,10 +29,14 @@ model = MathCNN().to(device)
 model.load_state_dict(torch.load('mnist_cnn.pth', weights_only=True)) 
 model.eval()
 
+
 class_mapping = {
-    0:'0', 1:'1', 2:'2', 3:'3', 4:'4', 
-    5:'5', 6:'6', 7:'7', 8:'8', 9:'9',
-    10:'+', 11:'-', 12:'/', 13:'*'
+    0: '0', 1: '1', 2: '2', 3: '3', 4: '4', 
+    5: '5', 6: '6', 7: '7', 8: '8', 9: '9',
+    10: '*',        # 'dot'
+    11: '-',        # 'minus'
+    12: '+',        # 'plus'
+    13: '/'         # 'slash'
 }
 
 
@@ -64,9 +68,6 @@ def solve_equation(image_path):
         img = cv2.bitwise_not(img)
 
     _, thresh = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY)
-    """    # NEW: Thin out the white ink so thick lines look like HASYv2 fine pens
-    kernel = np.ones((3,3), np.uint8)
-    thresh = cv2.erode(thresh, kernel, iterations=1) """
 
     contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
@@ -77,7 +78,7 @@ def solve_equation(image_path):
     equation_string = ""
     processed_boxes = []
 
-    # Beautifully simple loop now that the heuristic is gone
+    # loop for each detected character box
     for x, y, w, h in rects:
         padding = 5
         crop = thresh[max(0, y-padding):y+h+padding, max(0, x-padding):x+w+padding]
@@ -96,10 +97,6 @@ def solve_equation(image_path):
             _, predicted_class = torch.max(output.data, 1)
             char = class_mapping[predicted_class.item()]
 
-            """# NEW: Pop up a window to see exactly what the CNN is looking at!
-            plt.imshow(crop_resized, cmap='gray')
-            plt.title(f"CNN is looking at this. It guessed: {char}")
-            plt.show() """
  
         equation_string += char
         processed_boxes.append((x, y, w, h, char))
@@ -126,4 +123,5 @@ def solve_equation(image_path):
     plt.show()
 
 # --- RUN IT ---
-solve_equation('equation2.png')
+
+solve_equation('equation1.png')
