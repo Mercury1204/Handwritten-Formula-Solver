@@ -1,2 +1,8 @@
 .NN_pbl/
 .DS_Store
+*.pyc
+*.png
+symbols_dataset/
+equations/
+symbol_checker.py
+digit_checker.py
