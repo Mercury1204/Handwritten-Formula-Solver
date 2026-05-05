@@ -30,18 +30,21 @@ def get_combined_dataloaders(batch_size=64):
     mnist_train = MNIST(root='./data', train=True, transform=mnist_transform, download=True)
     
     # PyTorch's ImageFolder automatically assigns labels based on the folder names!
-    symbol_train = ImageFolder(root='./math_symbol_new', transform=symbol_transform)
+    # 1. Define the label shift (adds 10 to every math symbol label)
+    target_transform = transforms.Lambda(lambda y: y + 10)
 
-    # Note: We need to adjust the symbol labels to start at 10 (since MNIST is 0-9)
-    # We can do this with a quick lambda function on the dataset targets
-    symbol_train.targets = [label + 10 for label in symbol_train.targets]
+    # 2. Add target_transform to your ImageFolder
+    symbol_train = ImageFolder(
+        root='./math_symbol_new', 
+        transform=symbol_transform,
+        target_transform=target_transform
+    )
 
-    # Combine and Load
-    
-    # Multiply the symbol dataset by 15 so the CNN sees it 15x more often!
+    #3. Combine and Load
 
+    #here the 15x line is for nn to overcome its natural bias towards 60000 mnist digits vs ~4000 symbols
     #combined_dataset = ConcatDataset([mnist_train, symbol_train])
-    combined_dataset = ConcatDataset([mnist_train] + [symbol_train] * 20)
+    combined_dataset = ConcatDataset([mnist_train] + [symbol_train] * 15)
 
 
     combined_loader = DataLoader(dataset=combined_dataset, batch_size=batch_size, shuffle=True)

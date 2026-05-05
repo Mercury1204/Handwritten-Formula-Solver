@@ -32,7 +32,7 @@ model.eval()
 class_mapping = {
     0:'0', 1:'1', 2:'2', 3:'3', 4:'4', 
     5:'5', 6:'6', 7:'7', 8:'8', 9:'9',
-    10:'/', 11:'-', 12:'*', 13:'+'
+    10:'+', 11:'-', 12:'/', 13:'*'
 }
 
 
@@ -96,10 +96,10 @@ def solve_equation(image_path):
             _, predicted_class = torch.max(output.data, 1)
             char = class_mapping[predicted_class.item()]
 
-            # NEW: Pop up a window to see exactly what the CNN is looking at!
+            """# NEW: Pop up a window to see exactly what the CNN is looking at!
             plt.imshow(crop_resized, cmap='gray')
             plt.title(f"CNN is looking at this. It guessed: {char}")
-            plt.show()
+            plt.show() """
  
         equation_string += char
         processed_boxes.append((x, y, w, h, char))
@@ -126,4 +126,4 @@ def solve_equation(image_path):
     plt.show()
 
 # --- RUN IT ---
-solve_equation('equation4.png')
+solve_equation('equation2.png')
